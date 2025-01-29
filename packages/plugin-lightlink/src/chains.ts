@@ -1,5 +1,6 @@
 import { defineChain } from "viem";
 import { mainnet, sepolia } from "viem/chains";
+import { CONTRACTS } from "./contants";
 
 export const lightlink = defineChain({
     id: 1890,
@@ -24,7 +25,11 @@ export const lightlink = defineChain({
     blockExplorers: {
         default: { name: "Explorer", url: "https://phoenix.lightlink.io" },
     },
-    contracts: {},
+    contracts: {
+        uniswapV3Factory: CONTRACTS.lightlink.UNISWAP_V3_FACTORY_ADDRESS,
+        universalRouter: CONTRACTS.lightlink.UNIVERSAL_ROUTER,
+        uniswapV3Quoter: CONTRACTS.lightlink.UNISWAP_V3_QUOTER_ADDRESS,
+    },
 });
 
 export const lightlinkTestnet = defineChain({
@@ -50,7 +55,17 @@ export const lightlinkTestnet = defineChain({
     blockExplorers: {
         default: { name: "Explorer", url: "https://pegasus.lightlink.io" },
     },
-    contracts: {},
+    contracts: {
+        uniswapV3Factory: {
+            address: CONTRACTS.lightlinkTestnet.UNISWAP_V3_FACTORY_ADDRESS,
+        },
+        universalRouter: {
+            address: CONTRACTS.lightlinkTestnet.UNIVERSAL_ROUTER,
+        },
+        uniswapV3Quoter: {
+            address: CONTRACTS.lightlinkTestnet.UNISWAP_V3_QUOTER_ADDRESS,
+        },
+    },
 });
 
 export const chains = {
