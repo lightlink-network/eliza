@@ -15,7 +15,7 @@ Lightlink is a EVM compatible L2 blockchain. It supports hyperfast sub second tr
 The Lightlink network the mainnet might also be called Lightlink Phoenix and the testnet sometimes called Lightlink Pegasus.
 
 Your goal is to extract the following information about the requested transfer:
-1. Chain to execute on (must be one of the supported chains)
+1. Chain to execute on (must be one of the supported chains, if none is specified default to lightlink)
 2. Amount to transfer (in ETH, without the coin symbol)
 3. Recipient address (must be a valid Ethereum address)
 4. Token symbol or address (if not a native token transfer)
@@ -60,53 +60,28 @@ Remember:
 Now, process the user's request and provide your response.
 `;
 
-// export const bridgeTemplate = `Given the recent messages and wallet information below:
+export const swapTemplate = `Given the recent messages and wallet information below:
 
-// {{recentMessages}}
+{{recentMessages}}
 
-// {{walletInfo}}
+{{walletInfo}}
 
-// Extract the following information about the requested token bridge:
-// - Token symbol or address to bridge
-// - Source chain
-// - Destination chain
-// - Amount to bridge: Must be a string representing the amount in ether (only number without coin symbol, e.g., "0.1")
-// - Destination address (if specified)
+Extract the following information about the requested token swap:
+- Input token symbol or address (the token being sold)
+- Output token symbol or address (the token being bought)
+- Amount to swap: Must be a string representing the amount in ether (only number without coin symbol, e.g., "0.1")
+- Chain to execute on (If none is specified default to lightlink)
+- Slippage: Must be a floating point number between 0 and 1. Where 0 is 0% and 1 is 100%.
 
-// Respond with a JSON markdown block containing only the extracted values:
+Respond with a JSON markdown block containing only the extracted values. Use null for any values that cannot be determined:
 
-// \`\`\`json
-// {
-//     "token": string | null,
-//     "fromChain": "ethereum" | "sepolia" | "lightlink-phoenix" | "lightlink-pegasus" | null,
-//     "toChain": "ethereum" | "sepolia" | "lightlink-phoenix" | "lightlink-pegasus" | null,
-//     "amount": string | null,
-//     "toAddress": string | null
-// }
-// \`\`\`
-// `;
-
-// export const swapTemplate = `Given the recent messages and wallet information below:
-
-// {{recentMessages}}
-
-// {{walletInfo}}
-
-// Extract the following information about the requested token swap:
-// - Input token symbol or address (the token being sold)
-// - Output token symbol or address (the token being bought)
-// - Amount to swap: Must be a string representing the amount in ether (only number without coin symbol, e.g., "0.1")
-// - Chain to execute on
-
-// Respond with a JSON markdown block containing only the extracted values. Use null for any values that cannot be determined:
-
-// \`\`\`json
-// {
-//     "inputToken": string | null,
-//     "outputToken": string | null,
-//     "amount": string | null,
-//     "chain": "ethereum" | "abstract" | "base" | "sepolia" | "bsc" | "arbitrum" | "avalanche" | "polygon" | "optimism" | "cronos" | "gnosis" | "fantom" | "klaytn" | "celo" | "moonbeam" | "aurora" | "harmonyOne" | "moonriver" | "arbitrumNova" | "mantle" | "linea" | "scroll" | "filecoin" | "taiko" | "zksync" | "canto" | "alienx" | null,
-//     "slippage": number | null
-// }
-// \`\`\`
-// `;
+\`\`\`json
+{
+    "inputToken": string,
+    "outputToken": string,
+    "amount": string,
+    "chain": "sepolia" | "ethereum" | "lightlink" | "lightlinkTestnet",
+    "slippage": number
+}
+\`\`\`
+`;
