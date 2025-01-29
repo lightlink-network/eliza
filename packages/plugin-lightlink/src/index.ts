@@ -4,15 +4,16 @@ export * from "./types";
 
 import type { Plugin } from "@elizaos/core";
 import { transferAction } from "./actions/transfer";
+import { swapAction } from "./actions/swap";
 import { evmWalletProvider } from "./providers/wallet";
 
-export const evmPlugin: Plugin = {
+export const lightlinkPlugin: Plugin = {
     name: "lightlink",
     description: "Lightlink blockchain integration plugin",
     providers: [evmWalletProvider],
     evaluators: [],
     services: [],
-    actions: [transferAction],
+    actions: [transferAction, swapAction],
 };
 
-export default evmPlugin;
+export default lightlinkPlugin;
