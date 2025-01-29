@@ -8,7 +8,8 @@ import type {
     PublicClient,
     WalletClient,
 } from "viem";
-import * as viemChains from "viem/chains";
+// import * as viemChains from "viem/chains";
+
 import { chains as lightlinkL2Chains } from "../chains";
 
 // const _SupportedChainList = Object.keys(viemChains) as Array<
@@ -29,6 +30,15 @@ export interface Transaction {
     value: bigint;
     data?: `0x${string}`;
     chainId?: number;
+}
+
+export interface SwapTransaction {
+    hash: Hash;
+    fromToken: Address;
+    toToken: Address;
+    amountIn: bigint;
+    minAmountOut: bigint;
+    recipient: Address;
 }
 
 // Token types
