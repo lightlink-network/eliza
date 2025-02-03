@@ -13,6 +13,7 @@ import {
 import { initWalletProvider, WalletProvider } from "../providers/wallet";
 import type { Transaction, TransferParams } from "../types";
 import { transferTemplate } from "../templates";
+import { resolveEnsDomain } from "@cryptokass/llx";
 
 // Exported for tests
 export class TransferAction {
@@ -27,6 +28,10 @@ export class TransferAction {
             params.data = "0x";
         }
 
+        const toAddress: `0x${string}` = params.toAddress.startsWith("0x")
+            ? (params.toAddress as `0x${string}`)
+            : await resolveEnsDomain(params.toAddress);
+
         this.walletProvider.switchChain(params.fromChain);
 
         const walletClient = this.walletProvider.getWalletClient(
@@ -36,7 +41,7 @@ export class TransferAction {
         try {
             const hash = await walletClient.sendTransaction({
                 account: walletClient.account,
-                to: params.toAddress,
+                to: toAddress,
                 value: parseEther(params.amount),
                 data: params.data as Hex,
                 kzg: {
@@ -56,7 +61,7 @@ export class TransferAction {
             return {
                 hash,
                 from: walletClient.account.address,
-                to: params.toAddress,
+                to: toAddress,
                 value: parseEther(params.amount),
                 data: params.data as Hex,
             };

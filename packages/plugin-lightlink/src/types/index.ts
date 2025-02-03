@@ -86,7 +86,7 @@ export interface ChainConfig {
 // Action parameters
 export interface TransferParams {
     fromChain: SupportedChain;
-    toAddress: Address;
+    toAddress: string;
     amount: string;
     data?: `0x${string}`;
 }

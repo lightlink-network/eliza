@@ -17,7 +17,7 @@ The Lightlink network the mainnet might also be called Lightlink Phoenix and the
 Your goal is to extract the following information about the requested transfer:
 1. Chain to execute on (must be one of the supported chains, if none is specified default to lightlink)
 2. Amount to transfer (in ETH, without the coin symbol)
-3. Recipient address (must be a valid Ethereum address)
+3. Recipient address (must be a valid Ethereum address or a valid ENS name)
 4. Token symbol or address (if not a native token transfer)
 
 Before providing the final JSON output, show your reasoning process inside <analysis> tags. Follow these steps:
