@@ -32,6 +32,11 @@ export interface Transaction {
     chainId?: number;
 }
 
+export type SwapStep = {
+    txHash: string;
+    description?: string;
+};
+
 export interface SwapTransaction {
     hash: Hash;
     fromToken: Address;
@@ -39,6 +44,7 @@ export interface SwapTransaction {
     amountIn: bigint;
     minAmountOut: bigint;
     recipient: Address;
+    steps: SwapStep[];
 }
 
 // Token types

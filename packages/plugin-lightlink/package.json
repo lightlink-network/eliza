@@ -19,11 +19,12 @@
         "dist"
     ],
     "dependencies": {
+        "@cryptokass/llx": "^0.0.2",
         "@elizaos/core": "workspace:*",
         "@elizaos/plugin-tee": "workspace:*",
-        "tsup": "8.3.5",
         "@uniswap/sdk-core": "^7.5.0",
-        "@uniswap/v3-sdk": "^3.24.0"
+        "@uniswap/v3-sdk": "^3.24.0",
+        "tsup": "8.3.5"
     },
     "scripts": {
         "build": "tsup --format esm --dts",

@@ -1,3 +1,5 @@
+import { ByteArray } from "viem";
+
 export const CONTRACTS = {
     lightlink: {
         UNIVERSAL_ROUTER: "0x6B3ea22C757BbF9C78CcAaa2eD9562b57001720B",
@@ -13,3 +15,15 @@ export const CONTRACTS = {
         UNISWAP_V3_QUOTER_ADDRESS: "0x0000000000000000000000000000000000000000",
     },
 };
+
+export const blankKzg = () => ({
+    blobToKzgCommitment: function (_: ByteArray): ByteArray {
+        throw new Error("Function not implemented.");
+    },
+    computeBlobKzgProof: function (
+        _blob: ByteArray,
+        _commitment: ByteArray
+    ): ByteArray {
+        throw new Error("Function not implemented.");
+    },
+});

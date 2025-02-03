@@ -106,7 +106,7 @@ export const transferAction: Action = {
         runtime: IAgentRuntime,
         message: Memory,
         state: State,
-        _options: any,
+        _options: unknown,
         callback?: HandlerCallback
     ) => {
         if (!state) {

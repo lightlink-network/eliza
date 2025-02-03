@@ -1,4 +1,9 @@
-import type { IAgentRuntime, Memory, State } from "@elizaos/core";
+import type {
+    HandlerCallback,
+    IAgentRuntime,
+    Memory,
+    State,
+} from "@elizaos/core";
 import {
     composeContext,
     generateObjectDeprecated,
@@ -7,17 +12,10 @@ import {
 
 import { initWalletProvider, WalletProvider } from "../providers/wallet";
 import { swapTemplate } from "../templates";
-import type { SwapParams, SwapTransaction } from "../types";
-import {
-    decodeFunctionResult,
-    encodeAbiParameters,
-    encodeFunctionData,
-    encodePacked,
-    parseEther,
-    type ChainContract,
-    type PublicClient,
-} from "viem";
-import type { ByteArray, Chain, WalletClient } from "viem";
+import type { SwapParams, SwapStep, SwapTransaction } from "../types";
+import { elektrik, fetchTokenDecimals } from "@cryptokass/llx";
+import { blankKzg } from "../contants";
+import { type Hex, parseUnits } from "viem";
 
 export { swapTemplate };
 
@@ -31,54 +29,66 @@ export class SwapAction {
         const walletClient = this.walletProvider.getWalletClient(params.chain);
         const chain = this.walletProvider.getChainConfigs(params.chain);
         const [fromAddress] = await walletClient.getAddresses();
-        const uniswapV3Quoter = chain.contracts
-            .uniswapV3Quoter as ChainContract;
-        const universalRouter = chain.contracts
-            .universalRouter as ChainContract;
+
+        // 0. get input token info
+        const inputDecimals = await fetchTokenDecimals(
+            chain.id,
+            params.fromToken
+        );
+        const amountIn = parseUnits(params.amount, inputDecimals);
 
         // 1. Get the quote
-        const quote = await getQuote(
-            publicClient as PublicClient,
-            uniswapV3Quoter.address,
-            params.fromToken,
-            params.toToken,
-            parseEther(params.amount),
-            3000
-        );
+        const quote = await elektrik.quoteExactInput(chain.id, {
+            fromToken: params.fromToken,
+            toToken: params.toToken,
+            amountIn,
+            fee: 3000,
+        });
 
-        // 2. calculate the minimum amount out
-        //  `min_amount_out = amount_out - (amount_out * slippage / 100)`
-        const slippageBP = BigInt(params.slippage * 10_000);
-        const minAmountOut =
-            quote.amountOut - (quote.amountOut * slippageBP) / BigInt(100_000);
+        // 2. prepare the swap
+        const txs = await elektrik.swapExactInput(chain.id, fromAddress, {
+            tokenIn: params.fromToken,
+            tokenOut: params.toToken,
+            amountIn: amountIn,
+            amountOut: quote.amountOut,
+            slippage: params.slippage || 0.05,
+            fee: 3000,
+        });
 
         // 3. execute the swap
-        const tx = await executeSwap(
-            chain,
-            walletClient,
-            universalRouter.address,
-            params.fromToken,
-            params.toToken,
-            parseEther(params.amount),
-            minAmountOut,
-            3000
-        );
+        const actions: SwapStep[] = [];
+        for (const tx of txs) {
+            const hash = await walletClient.sendTransaction({
+                chain: chain,
+                account: walletClient.account,
+                kzg: blankKzg(),
+                ...tx,
+            });
+            await publicClient.waitForTransactionReceipt({ hash });
+            actions.push({
+                txHash: hash,
+                description: `Swap:` + tx.description,
+            });
+        }
 
+        // 4. get the receipt
         const receipt = await publicClient.waitForTransactionReceipt({
-            hash: tx,
+            hash: actions[actions.length - 1].txHash as Hex,
         });
 
         if (!receipt?.status || receipt!.status === "reverted") {
             throw new Error("Transaction failed");
         }
 
+        // 5. return the swap info
         return {
-            hash: tx,
+            hash: receipt.transactionHash,
             fromToken: params.fromToken,
             toToken: params.toToken,
-            amountIn: parseEther(params.amount),
-            minAmountOut: minAmountOut,
+            amountIn: amountIn,
+            minAmountOut: quote.amountOut,
             recipient: fromAddress,
+            steps: actions,
         };
     }
 }
@@ -90,8 +100,8 @@ export const swapAction = {
         runtime: IAgentRuntime,
         _message: Memory,
         state: State,
-        _options: any,
-        callback?: any
+        _options: unknown,
+        callback?: HandlerCallback
     ) => {
         console.log("Swap action handler called");
         const walletProvider = await initWalletProvider(runtime);
@@ -156,179 +166,3 @@ export const swapAction = {
     ],
     similes: ["TOKEN_SWAP", "EXCHANGE_TOKENS", "TRADE_TOKENS"],
 }; // TODO: add more examples
-
-const quoterAbi = [
-    {
-        inputs: [
-            {
-                components: [
-                    {
-                        internalType: "address",
-                        name: "tokenIn",
-                        type: "address",
-                    },
-                    {
-                        internalType: "address",
-                        name: "tokenOut",
-                        type: "address",
-                    },
-                    {
-                        internalType: "uint256",
-                        name: "amountIn",
-                        type: "uint256",
-                    },
-                    { internalType: "uint24", name: "fee", type: "uint24" },
-                    {
-                        internalType: "uint160",
-                        name: "sqrtPriceLimitX96",
-                        type: "uint160",
-                    },
-                ],
-                internalType: "struct IQuoterV2.QuoteExactInputSingleParams",
-                name: "params",
-                type: "tuple",
-            },
-        ],
-        name: "quoteExactInputSingle",
-        outputs: [
-            { internalType: "uint256", name: "amountOut", type: "uint256" },
-            {
-                internalType: "uint160",
-                name: "sqrtPriceX96After",
-                type: "uint160",
-            },
-            {
-                internalType: "uint32",
-                name: "initializedTicksCrossed",
-                type: "uint32",
-            },
-            {
-                internalType: "uint256",
-                name: "gasEstimate",
-                type: "uint256",
-            },
-        ],
-        stateMutability: "nonpayable",
-        type: "function",
-    },
-];
-
-const getQuote = async (
-    client: PublicClient,
-    quoterContractAddress: string,
-    fromToken: string,
-    toToken: string,
-    amountIn: bigint,
-    fee: number
-) => {
-    // Prepare the call
-    const encodedData = encodeFunctionData({
-        abi: quoterAbi,
-        functionName: "quoteExactInputSingle",
-        args: [
-            {
-                tokenIn: fromToken,
-                tokenOut: toToken,
-                amountIn: amountIn,
-                fee: fee,
-                sqrtPriceLimitX96: 0n, // no limit
-            },
-        ],
-    });
-
-    // Perform the static call
-    const response = await client.call({
-        to: quoterContractAddress,
-        data: encodedData,
-    });
-
-    // Decode the response
-    const result = decodeFunctionResult({
-        abi: quoterAbi,
-        functionName: "quoteExactInputSingle",
-        data: response.data,
-    });
-
-    // Extract the individual outputs
-    const quotedAmountOut = result[0];
-    const sqrtPriceX96After = result[1];
-    const initializedTicksCrossed = result[2];
-    const gasEstimate = result[3];
-
-    return {
-        amountOut: quotedAmountOut as bigint,
-        sqrtPriceX96After,
-        initializedTicksCrossed,
-        gasEstimate,
-    };
-};
-
-const executeSwap = async (
-    chain: Chain,
-    client: WalletClient,
-    universalRouter: `0x${string}`,
-    fromToken: `0x${string}`,
-    toToken: `0x${string}`,
-    amountIn: bigint,
-    amountOutMin: bigint,
-    fee: number
-) => {
-    const SWAP_EXACT_IN = "0x00";
-
-    const [fromAddress] = await client.getAddresses();
-
-    // Define the path and input parameters
-    const v3SwapRoute = encodePacked(
-        ["address", "uint24", "address"],
-        [fromToken, fee, toToken]
-    );
-
-    const inputs = encodeAbiParameters(
-        [
-            { type: "address", name: "recipient" },
-            { type: "uint256", name: "amountIn" },
-            { type: "uint256", name: "amountOutMin" },
-            { type: "bytes", name: "path" },
-            { type: "bool", name: "payerIsUser" },
-        ],
-        [fromAddress, amountIn, amountOutMin, v3SwapRoute, true]
-    );
-
-    const callData = encodeFunctionData({
-        abi: [
-            {
-                inputs: [
-                    { type: "bytes", name: "commands" },
-                    { type: "bytes[]", name: "inputs" },
-                ],
-                name: "execute",
-                outputs: [],
-                stateMutability: "payable",
-                type: "function",
-            },
-        ],
-        functionName: "execute",
-        args: [SWAP_EXACT_IN, [inputs]],
-    });
-
-    // Send the transaction
-    const tx = await client.sendTransaction({
-        chain: chain,
-        account: fromAddress,
-        to: universalRouter,
-        data: callData,
-        kzg: {
-            blobToKzgCommitment: function (_: ByteArray): ByteArray {
-                throw new Error("Function not implemented.");
-            },
-            computeBlobKzgProof: function (
-                _blob: ByteArray,
-                _commitment: ByteArray
-            ): ByteArray {
-                throw new Error("Function not implemented.");
-            },
-        },
-    });
-
-    return tx;
-};
