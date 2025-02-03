@@ -6,6 +6,7 @@ import type { Plugin } from "@elizaos/core";
 import { transferAction } from "./actions/transfer";
 import { swapAction } from "./actions/swap";
 import { evmWalletProvider } from "./providers/wallet";
+import { searchAction } from "./actions/search";
 
 export const lightlinkPlugin: Plugin = {
     name: "lightlink",
@@ -13,7 +14,7 @@ export const lightlinkPlugin: Plugin = {
     providers: [evmWalletProvider],
     evaluators: [],
     services: [],
-    actions: [transferAction, swapAction],
+    actions: [transferAction, swapAction, searchAction],
 };
 
 export default lightlinkPlugin;

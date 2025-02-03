@@ -85,3 +85,26 @@ Respond with a JSON markdown block containing only the extracted values. Use nul
 }
 \`\`\`
 `;
+
+export const searchTemplate = `Given the recent messages and wallet information below:
+
+{{recentMessages}}
+
+{{walletInfo}}
+
+Extract the following information about the requested search:
+- Query: The search query to be performed on the chain
+- Chain: The chain to execute on (If none is specified default to lightlink)
+
+For example the query could be an address, a token symbol, or a transaction hash. You might use
+search to fund the address of a token, or locate a smart contract.
+
+Respond with a JSON markdown block containing only the extracted values. Use null for any values that cannot be determined:
+
+\`\`\`json
+{
+    "query": string,
+    "chain": "sepolia" | "ethereum" | "lightlink" | "lightlinkTestnet"
+}
+\`\`\`
+`;

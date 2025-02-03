@@ -108,6 +108,15 @@ export interface BridgeParams {
     toAddress?: Address;
 }
 
+export interface SearchParams {
+    chain: SupportedChain;
+    query: string;
+}
+
+export interface SearchResult {
+    result: string;
+}
+
 // Plugin configuration
 export interface EvmPluginConfig {
     rpcUrl?: {
