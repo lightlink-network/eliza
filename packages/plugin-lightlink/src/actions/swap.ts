@@ -158,7 +158,7 @@ export const swapAction = {
             {
                 user: "user",
                 content: {
-                    text: "Swap 1 ETH for USDC on Base",
+                    text: "Swap 1 ETH for USDC on Lightlink",
                     action: "TOKEN_SWAP",
                 },
             },
