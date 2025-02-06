@@ -85,7 +85,7 @@ export const balanceAction = {
                         `Successfully got the balance for ${balanceOptions.address}` +
                         `\nToken: ${balanceOptions.token ?? "ETH"}` +
                         `\nChain: ${balanceOptions.chain}` +
-                        `\nBalance: ${balanceResp.balance} (${balanceResp.formattedBalance} Units)`,
+                        `\nBalance: ${balanceResp.formattedBalance} (${balanceResp.balance} Units)`,
                     content: {
                         success: true,
                         chain: content.chain,
