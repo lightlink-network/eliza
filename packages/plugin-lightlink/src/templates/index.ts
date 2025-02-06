@@ -73,6 +73,10 @@ Extract the following information about the requested token swap:
 - Chain to execute on (If none is specified default to lightlink)
 - Slippage: Must be a floating point number between 0 and 1. Where 0 is 0% and 1 is 100%.
 
+Note:
+Lightlink is a EVM compatible L2 blockchain. It supports hyperfast sub second transactions and ultra low (often free) gas fees.
+The Lightlink network the mainnet might also be called Lightlink Phoenix and the testnet sometimes called Lightlink Pegasus.
+
 Respond with a JSON markdown block containing only the extracted values. Use null for any values that cannot be determined:
 
 \`\`\`json
@@ -99,12 +103,17 @@ Extract the following information about the requested search:
 For example the query could be an address, a token symbol, or a transaction hash. You might use
 search to fund the address of a token, or locate a smart contract.
 
+Note:
+Lightlink is a EVM compatible L2 blockchain. It supports hyperfast sub second transactions and ultra low (often free) gas fees.
+The Lightlink network the mainnet might also be called Lightlink Phoenix and the testnet sometimes called Lightlink Pegasus.
+Searching on Lightlink is only supported on the Lightlink network.
+
 Respond with a JSON markdown block containing only the extracted values. If you dont know the network, default to lightlink.
 
 \`\`\`json
 {
     "query": string,
-    "chain": "sepolia" | "ethereum" | "lightlink" | "lightlinkTestnet"
+    "chain": "lightlink" | "lightlinkTestnet"
 }
 \`\`\`
 `;
@@ -122,6 +131,10 @@ Extract the following information about the requested balance query:
 
 For example the query could be an address, a token symbol, or a transaction hash. You might use
 search to fund the address of a token, or locate a smart contract.
+
+Note:
+Lightlink is a EVM compatible L2 blockchain. It supports hyperfast sub second transactions and ultra low (often free) gas fees.
+The Lightlink network the mainnet might also be called Lightlink Phoenix and the testnet sometimes called Lightlink Pegasus.
 
 Respond with a JSON markdown block containing only the extracted values. If you dont know the network, default to lightlink.
 If you are getting the native balance aka ETH, set the token to null.
