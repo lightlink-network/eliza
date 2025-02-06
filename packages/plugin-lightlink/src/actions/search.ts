@@ -15,6 +15,10 @@ export class SearchAction {
     async search(params: SearchParams): Promise<SearchResult> {
         const publicClient = this.walletProvider.getPublicClient(params.chain);
 
+        if (params.chain != "lightlink" && params.chain != "lightlinkTestnet") {
+            throw new Error("Chain not supported");
+        }
+
         const results = await search(publicClient.chain.id, params.query);
 
         return {
@@ -84,11 +88,11 @@ export const searchAction = {
             {
                 user: "user",
                 content: {
-                    text: "Swap 1 ETH for USDC on Base",
-                    action: "TOKEN_SWAP",
+                    text: "Search for the address of USDC on Lightlink",
+                    action: "SEARCH_BLOCKCHAIN",
                 },
             },
         ],
     ],
-    similes: ["TOKEN_SWAP", "EXCHANGE_TOKENS", "TRADE_TOKENS"],
+    similes: ["SEARCH_BLOCKCHAIN", "SEARCH_ADDRESS", "SEARCH_TOKEN"],
 }; // TODO: add more examples
