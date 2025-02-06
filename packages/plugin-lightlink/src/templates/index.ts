@@ -93,17 +93,43 @@ export const searchTemplate = `Given the recent messages and wallet information 
 {{walletInfo}}
 
 Extract the following information about the requested search:
-- Query: The search query to be performed on the chain
+- Query: The search query to be performed on the chain. For example the query could be an address, an ENS name, a token symbol, A contract name, or a transaction hash.
 - Chain: The chain to execute on (If none is specified default to lightlink)
 
 For example the query could be an address, a token symbol, or a transaction hash. You might use
 search to fund the address of a token, or locate a smart contract.
 
-Respond with a JSON markdown block containing only the extracted values. Use null for any values that cannot be determined:
+Respond with a JSON markdown block containing only the extracted values. If you dont know the network, default to lightlink.
 
 \`\`\`json
 {
     "query": string,
+    "chain": "sepolia" | "ethereum" | "lightlink" | "lightlinkTestnet"
+}
+\`\`\`
+`;
+
+export const balanceTemplate = `Given the recent messages and wallet information below:
+
+{{recentMessages}}
+
+{{walletInfo}}
+
+Extract the following information about the requested balance query:
+- Address: The address to get the balance of
+- Token: The address of the token to get the balance for (if none is specified default to ETH)
+- Chain: The chain to fetch the balance on (If none is specified default to lightlink)
+
+For example the query could be an address, a token symbol, or a transaction hash. You might use
+search to fund the address of a token, or locate a smart contract.
+
+Respond with a JSON markdown block containing only the extracted values. If you dont know the network, default to lightlink.
+If you are getting the native balance aka ETH, set the token to null.
+
+\`\`\`json
+{
+    "address": string,
+    "token": string | null,
     "chain": "sepolia" | "ethereum" | "lightlink" | "lightlinkTestnet"
 }
 \`\`\`

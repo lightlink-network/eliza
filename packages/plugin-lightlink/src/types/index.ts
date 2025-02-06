@@ -117,6 +117,17 @@ export interface SearchResult {
     result: string;
 }
 
+export interface BalanceParams {
+    chain: SupportedChain;
+    address: Address;
+    token: Address | null;
+}
+
+export interface BalanceResult {
+    balance: string;
+    formattedBalance: string;
+}
+
 // Plugin configuration
 export interface EvmPluginConfig {
     rpcUrl?: {

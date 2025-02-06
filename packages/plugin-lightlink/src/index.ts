@@ -7,6 +7,7 @@ import { transferAction } from "./actions/transfer";
 import { swapAction } from "./actions/swap";
 import { evmWalletProvider } from "./providers/wallet";
 import { searchAction } from "./actions/search";
+import { balanceAction } from "./actions/balance";
 
 export const lightlinkPlugin: Plugin = {
     name: "lightlink",
@@ -14,7 +15,7 @@ export const lightlinkPlugin: Plugin = {
     providers: [evmWalletProvider],
     evaluators: [],
     services: [],
-    actions: [transferAction, swapAction, searchAction],
+    actions: [transferAction, swapAction, searchAction, balanceAction],
 };
 
 export default lightlinkPlugin;
