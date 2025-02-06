@@ -64,7 +64,9 @@ export class WalletProvider {
     getPublicClient(
         chainName: SupportedChain
     ): PublicClient<HttpTransport, Chain, Account | undefined> {
-        if (!this.chains[chainName]) {
+        chainName = WalletProvider.validateName(chainName) as SupportedChain;
+
+        if (!this.chains[chainName]?.id) {
             throw new Error("Invalid chain name:" + chainName);
         }
 
@@ -229,10 +231,7 @@ export class WalletProvider {
         return http(chain.rpcUrls.default.http[0]);
     };
 
-    static genChainFromName(
-        chainName: string,
-        customRpcUrl?: string | null
-    ): Chain {
+    static validateName(chainName: string): string {
         if (chainName === "phoenix" || chainName === "mainnet") {
             chainName = "lightlink";
         }
@@ -243,10 +242,18 @@ export class WalletProvider {
             chainName = "ethereum";
         }
 
+        return chainName;
+    }
+
+    static genChainFromName(
+        chainName: string,
+        customRpcUrl?: string | null
+    ): Chain {
+        chainName = WalletProvider.validateName(chainName);
         const baseChain = lightlinkL2Chains[chainName];
 
         if (!baseChain?.id) {
-            throw new Error("Invalid chain name:" + chainName);
+            throw new Error("Invalid chain name: " + chainName);
         }
 
         const viemChain: Chain = customRpcUrl
@@ -265,31 +272,30 @@ export class WalletProvider {
     }
 }
 
-const genChainsFromRuntime = (
-    runtime: IAgentRuntime
-): Record<string, Chain> => {
-    const chainNames =
-        (runtime.character.settings.chains?.evm as SupportedChain[]) || [];
-    const chains = {};
+const genChainsFromRuntime = (_: IAgentRuntime): Record<string, Chain> => {
+    // const chainNames =
+    //     (runtime.character.settings.chains?.evm as SupportedChain[]) || [];
+    // const chains = {};
 
-    chainNames.forEach((chainName) => {
-        const rpcUrl = runtime.getSetting(
-            "ETHEREUM_PROVIDER_" + chainName.toUpperCase()
-        );
-        const chain = WalletProvider.genChainFromName(chainName, rpcUrl);
-        chains[chainName] = chain;
-    });
+    // chainNames.forEach((chainName) => {
+    //     const rpcUrl = runtime.getSetting(
+    //         "ETHEREUM_PROVIDER_" + chainName.toUpperCase()
+    //     );
+    //     const chain = WalletProvider.genChainFromName(chainName, rpcUrl);
+    //     chains[chainName] = chain;
+    // });
 
-    const mainnet_rpcurl = runtime.getSetting("EVM_PROVIDER_URL");
-    if (mainnet_rpcurl) {
-        const chain = WalletProvider.genChainFromName(
-            "mainnet",
-            mainnet_rpcurl
-        );
-        chains["mainnet"] = chain;
-    }
+    // const mainnet_rpcurl = runtime.getSetting("EVM_PROVIDER_URL");
+    // if (mainnet_rpcurl) {
+    //     const chain = WalletProvider.genChainFromName(
+    //         "mainnet",
+    //         mainnet_rpcurl
+    //     );
+    //     chains["mainnet"] = chain;
+    // }
 
-    return chains;
+    // return chains;
+    return lightlinkL2Chains;
 };
 
 export const initWalletProvider = async (runtime: IAgentRuntime) => {
