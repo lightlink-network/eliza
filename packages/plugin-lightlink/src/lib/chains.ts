@@ -1,6 +1,6 @@
 import { defineChain } from "viem";
 import { mainnet, sepolia } from "viem/chains";
-import { CONTRACTS } from "./contants";
+import { CONTRACTS } from "./constants";
 
 export const lightlink = defineChain({
     id: 1890,
@@ -26,9 +26,15 @@ export const lightlink = defineChain({
         default: { name: "Explorer", url: "https://phoenix.lightlink.io" },
     },
     contracts: {
-        uniswapV3Factory: CONTRACTS.lightlink.UNISWAP_V3_FACTORY_ADDRESS,
-        universalRouter: CONTRACTS.lightlink.UNIVERSAL_ROUTER,
-        uniswapV3Quoter: CONTRACTS.lightlink.UNISWAP_V3_QUOTER_ADDRESS,
+        uniswapV3Factory: {
+            address: CONTRACTS.lightlink.UNISWAP_V3_FACTORY_ADDRESS,
+        },
+        universalRouter: {
+            address: CONTRACTS.lightlink.UNIVERSAL_ROUTER,
+        },
+        uniswapV3Quoter: {
+            address: CONTRACTS.lightlink.UNISWAP_V3_QUOTER_ADDRESS,
+        },
     },
 });
 

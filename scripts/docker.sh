@@ -46,6 +46,7 @@ case "$1" in
             "plugin-node"
             "plugin-solana"
             "plugin-evm"
+            "plugin-lightlink"
             "plugin-tee"
         )
 

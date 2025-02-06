@@ -16,7 +16,7 @@ export default defineConfig({
         "http",
         "agentkeepalive",
         "viem",
-        "@lifi/sdk",
+        "@cryptokass/llx",
         "events",
         "node-cache",
     ],

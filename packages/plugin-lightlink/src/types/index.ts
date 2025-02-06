@@ -10,7 +10,7 @@ import type {
 } from "viem";
 // import * as viemChains from "viem/chains";
 
-import { chains as lightlinkL2Chains } from "../chains";
+import { chains as lightlinkL2Chains } from "../lib/chains";
 
 // const _SupportedChainList = Object.keys(viemChains) as Array<
 //     keyof typeof viemChains

@@ -22,8 +22,9 @@ import type {
     Account,
     PrivateKeyAccount,
 } from "viem";
-import { chains as lightlinkL2Chains } from "../chains";
-import { DeriveKeyProvider, TEEMode } from "@elizaos/plugin-tee";
+import { chains as lightlinkL2Chains } from "../lib/chains";
+// import { DeriveKeyProvider, TEEMode } from "@elizaos/plugin-tee";
+import { TEEMode } from "@elizaos/plugin-tee";
 import NodeCache from "node-cache";
 import * as path from "path";
 
@@ -63,6 +64,10 @@ export class WalletProvider {
     getPublicClient(
         chainName: SupportedChain
     ): PublicClient<HttpTransport, Chain, Account | undefined> {
+        if (!this.chains[chainName]) {
+            throw new Error("Invalid chain name:" + chainName);
+        }
+
         const transport = this.createHttpTransport(chainName);
 
         const publicClient = createPublicClient({
@@ -88,7 +93,7 @@ export class WalletProvider {
         const chain = lightlinkL2Chains[chainName];
 
         if (!chain?.id) {
-            throw new Error("Invalid chain name");
+            throw new Error("Invalid chain name:" + chainName);
         }
 
         return chain;
@@ -228,10 +233,20 @@ export class WalletProvider {
         chainName: string,
         customRpcUrl?: string | null
     ): Chain {
+        if (chainName === "phoenix" || chainName === "mainnet") {
+            chainName = "lightlink";
+        }
+        if (chainName === "pegasus" || chainName === "testnet") {
+            chainName = "lightlinkTestnet";
+        }
+        if (chainName === "eth") {
+            chainName = "ethereum";
+        }
+
         const baseChain = lightlinkL2Chains[chainName];
 
         if (!baseChain?.id) {
-            throw new Error("Invalid chain name");
+            throw new Error("Invalid chain name:" + chainName);
         }
 
         const viemChain: Chain = customRpcUrl
@@ -283,24 +298,25 @@ export const initWalletProvider = async (runtime: IAgentRuntime) => {
     const chains = genChainsFromRuntime(runtime);
 
     if (teeMode !== TEEMode.OFF) {
-        const walletSecretSalt = runtime.getSetting("WALLET_SECRET_SALT");
-        if (!walletSecretSalt) {
-            throw new Error(
-                "WALLET_SECRET_SALT required when TEE_MODE is enabled"
-            );
-        }
+        // const walletSecretSalt = runtime.getSetting("WALLET_SECRET_SALT");
+        // if (!walletSecretSalt) {
+        //     throw new Error(
+        //         "WALLET_SECRET_SALT required when TEE_MODE is enabled"
+        //     );
+        // }
 
-        const deriveKeyProvider = new DeriveKeyProvider(teeMode);
-        const deriveKeyResult = await deriveKeyProvider.deriveEcdsaKeypair(
-            "/",
-            walletSecretSalt,
-            runtime.agentId
-        );
-        return new WalletProvider(
-            deriveKeyResult.keypair,
-            runtime.cacheManager,
-            chains
-        );
+        // const deriveKeyProvider = new DeriveKeyProvider(teeMode);
+        // const deriveKeyResult = await deriveKeyProvider.deriveEcdsaKeypair(
+        //     "/",
+        //     walletSecretSalt,
+        //     runtime.agentId
+        // );
+        // return new WalletProvider(
+        //     deriveKeyResult.keypair,
+        //     runtime.cacheManager,
+        //     chains
+        // );
+        throw new Error("TEE not supported");
     } else {
         const privateKey = runtime.getSetting(
             "EVM_PRIVATE_KEY"

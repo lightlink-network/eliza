@@ -14,7 +14,7 @@ import { initWalletProvider, WalletProvider } from "../providers/wallet";
 import { swapTemplate } from "../templates";
 import type { SwapParams, SwapStep, SwapTransaction } from "../types";
 import { elektrik, fetchTokenDecimals } from "@cryptokass/llx";
-import { blankKzg } from "../contants";
+import { blankKzg } from "../lib/constants";
 import { type Hex, parseUnits } from "viem";
 
 export { swapTemplate };

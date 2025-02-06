@@ -124,20 +124,26 @@ export const balanceTemplate = `Given the recent messages and wallet information
 
 {{walletInfo}}
 
+<supported_chains>
+"sepolia" | "ethereum" | "lightlink" | "lightlinkTestnet"
+</supported_chains>
+
 Extract the following information about the requested balance query:
 - Address: The address to get the balance of
 - Token: The address of the token to get the balance for (if none is specified default to ETH)
-- Chain: The chain to fetch the balance on (If none is specified default to lightlink)
+- Chain: The chain to fetch the balance on (If none is specified default to "lightlink")
 
 For example the query could be an address, a token symbol, or a transaction hash. You might use
 search to fund the address of a token, or locate a smart contract.
 
 Note:
 Lightlink is a EVM compatible L2 blockchain. It supports hyperfast sub second transactions and ultra low (often free) gas fees.
-The Lightlink network the mainnet might also be called Lightlink Phoenix and the testnet sometimes called Lightlink Pegasus.
+The Lightlink mainnet might also be called Lightlink Phoenix and the testnet sometimes called Lightlink Pegasus.
 
 Respond with a JSON markdown block containing only the extracted values. If you dont know the network, default to lightlink.
 If you are getting the native balance aka ETH, set the token to null.
+
+The chain variable must be one of the supported chains. e.g. "lightlink", "lightlinkTestnet", "sepolia" or "ethereum"
 
 \`\`\`json
 {
