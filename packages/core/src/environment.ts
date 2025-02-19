@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { ModelProviderName, Clients } from "./types";
+import { ModelProviderName } from "./types";
+import elizaLogger from "./logger";
 
 // TODO: TO COMPLETE
 export const envSchema = z.object({
@@ -76,12 +77,24 @@ export const CharacterSchema = z.object({
     postExamples: z.array(z.string()),
     topics: z.array(z.string()),
     adjectives: z.array(z.string()),
-    knowledge: z.array(z.string()).optional(),
-    clients: z.array(z.nativeEnum(Clients)),
-    plugins: z.union([
-      z.array(z.string()),
-      z.array(PluginSchema),
-    ]),
+    knowledge: z
+        .array(
+            z.union([
+                z.string(), // Direct knowledge strings
+                z.object({
+                    // Individual file config
+                    path: z.string(),
+                    shared: z.boolean().optional(),
+                }),
+                z.object({
+                    // Directory config
+                    directory: z.string(),
+                    shared: z.boolean().optional(),
+                }),
+            ])
+        )
+        .optional(),
+    plugins: z.union([z.array(z.string()), z.array(PluginSchema)]),
     settings: z
         .object({
             secrets: z.record(z.string()).optional(),
@@ -92,6 +105,14 @@ export const CharacterSchema = z.object({
                 })
                 .optional(),
             model: z.string().optional(),
+            modelConfig: z.object({
+                maxInputTokens: z.number().optional(),
+                maxOutputTokens: z.number().optional(),
+                temperature: z.number().optional(),
+                frequency_penalty: z.number().optional(),
+                presence_penalty:z.number().optional()
+            })
+            .optional(),
             embeddingModel: z.string().optional(),
         })
         .optional(),
@@ -129,6 +150,7 @@ export const CharacterSchema = z.object({
             prompt: z.string().optional(),
         })
         .optional(),
+    extends: z.array(z.string()).optional(),
 });
 
 // Type inference
@@ -140,11 +162,26 @@ export function validateCharacterConfig(json: unknown): CharacterConfig {
         return CharacterSchema.parse(json);
     } catch (error) {
         if (error instanceof z.ZodError) {
-            const errorMessages = error.errors
-                .map((err) => `${err.path.join(".")}: ${err.message}`)
-                .join("\n");
+            const groupedErrors = error.errors.reduce(
+                (acc, err) => {
+                    const path = err.path.join(".");
+                    if (!acc[path]) {
+                        acc[path] = [];
+                    }
+                    acc[path].push(err.message);
+                    return acc;
+                },
+                {} as Record<string, string[]>
+            );
+
+            Object.entries(groupedErrors).forEach(([field, messages]) => {
+                elizaLogger.error(
+                    `Validation errors in ${field}: ${messages.join(" - ")}`
+                );
+            });
+
             throw new Error(
-                `Character configuration validation failed:\n${errorMessages}`
+                "Character configuration validation failed. Check logs for details."
             );
         }
         throw error;
