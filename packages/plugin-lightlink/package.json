@@ -19,9 +19,11 @@
         "dist"
     ],
     "dependencies": {
+        "@bonfida/spl-name-service": "^3.0.9",
         "@cryptokass/llx": "0.0.3",
         "@elizaos/core": "workspace:*",
-        "@elizaos/plugin-tee": "workspace:*",
+        "@solana/web3.js": "^1.98.0",
+        "node-cache": "^5.1.2",
         "tsup": "8.3.5",
         "typescript": "5.7.3"
     },
@@ -31,8 +33,5 @@
         "dev": "tsup --format esm --dts --watch",
         "test": "vitest run",
         "lint": "eslint --fix  --cache ."
-    },
-    "peerDependencies": {
-        "whatwg-url": "7.1.0"
     }
 }
