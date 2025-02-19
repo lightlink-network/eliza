@@ -23,8 +23,6 @@ import type {
     PrivateKeyAccount,
 } from "viem";
 import { chains as lightlinkL2Chains } from "../lib/chains";
-// import { DeriveKeyProvider, TEEMode } from "@elizaos/plugin-tee";
-import { TEEMode } from "@elizaos/plugin-tee";
 import NodeCache from "node-cache";
 import * as path from "path";
 
@@ -299,39 +297,18 @@ const genChainsFromRuntime = (_: IAgentRuntime): Record<string, Chain> => {
 };
 
 export const initWalletProvider = async (runtime: IAgentRuntime) => {
-    const teeMode = runtime.getSetting("TEE_MODE") || TEEMode.OFF;
+    const teeMode = runtime.getSetting("TEE_MODE") || "OFF";
 
     const chains = genChainsFromRuntime(runtime);
 
-    if (teeMode !== TEEMode.OFF) {
-        // const walletSecretSalt = runtime.getSetting("WALLET_SECRET_SALT");
-        // if (!walletSecretSalt) {
-        //     throw new Error(
-        //         "WALLET_SECRET_SALT required when TEE_MODE is enabled"
-        //     );
-        // }
-
-        // const deriveKeyProvider = new DeriveKeyProvider(teeMode);
-        // const deriveKeyResult = await deriveKeyProvider.deriveEcdsaKeypair(
-        //     "/",
-        //     walletSecretSalt,
-        //     runtime.agentId
-        // );
-        // return new WalletProvider(
-        //     deriveKeyResult.keypair,
-        //     runtime.cacheManager,
-        //     chains
-        // );
+    if (teeMode !== "OFF") {
         throw new Error("TEE not supported");
-    } else {
-        const privateKey = runtime.getSetting(
-            "EVM_PRIVATE_KEY"
-        ) as `0x${string}`;
-        if (!privateKey) {
-            throw new Error("EVM_PRIVATE_KEY is missing");
-        }
-        return new WalletProvider(privateKey, runtime.cacheManager, chains);
     }
+    const privateKey = runtime.getSetting("EVM_PRIVATE_KEY") as `0x${string}`;
+    if (!privateKey) {
+        throw new Error("EVM_PRIVATE_KEY is missing");
+    }
+    return new WalletProvider(privateKey, runtime.cacheManager, chains);
 };
 
 export const evmWalletProvider: Provider = {
