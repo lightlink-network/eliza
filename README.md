@@ -1,3 +1,6 @@
+
+> ⚠️ This repository is deprecated. LightLink plugin development moved to [https://github.com/lightlink-network/plugin-lightlink](https://github.com/lightlink-network/plugin-lightlink).
+
 # Eliza 🤖
 
 <div align="center">
